@@ -1,0 +1,810 @@
+/*****************************************/
+/*	Author : Mahmoud Moheb				 */
+/*	Date   : 27-10-2022   		   		 */
+/*	Version: 0.1				         */
+/*	File   : LCD_program.c	             */
+/*****************************************/
+#define F_CPU 1000000UL
+#include <util/delay.h>
+#include "STD_TYPES.h"
+#include "BIT_MATH.h"
+#include "DIO_private.h"
+#include "LCD_Private.h"
+#include "LCD_Configuration.h"
+#include "LCD_Interface.h"
+
+#if LCD_Mode == EightBitsMode
+
+void LCD_Init(void)
+{
+	_delay_ms(100);
+	//function set
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	SET_BIT(D5_PORT,D5_BinNum);
+	SET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(D3_PORT,D3_BinNum);
+	SET_BIT(D2_PORT,D2_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	//display on/off control
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(D3_PORT,D3_BinNum);
+	SET_BIT(D2_PORT,D2_BinNum);
+	SET_BIT(D1_PORT,D1_BinNum);
+	RESET_BIT(D0_PORT,D0_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	//display clear
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	RESET_BIT(D3_PORT,D3_BinNum);
+	RESET_BIT(D2_PORT,D2_BinNum);
+	RESET_BIT(D1_PORT,D1_BinNum);
+	SET_BIT(D0_PORT,D0_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	//entry mode set
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	RESET_BIT(D3_PORT,D3_BinNum);
+	SET_BIT(D2_PORT,D2_BinNum);
+	SET_BIT(D1_PORT,D1_BinNum);
+	RESET_BIT(D0_PORT,D0_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+void LCD_DisplayChar(u8 Character)
+{
+	SET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	if(GET_BITVAL(Character,7)==1)
+	{
+		SET_BIT(D7_PORT,D7_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D7_PORT,D7_BinNum);
+	}
+	if(GET_BITVAL(Character,6)==1)
+	{
+		SET_BIT(D5_PORT,D6_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D6_PORT,D6_BinNum);
+	}
+	if(GET_BITVAL(Character,5)==1)
+	{
+		SET_BIT(D5_PORT,D5_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D5_PORT,D5_BinNum);
+	}
+	if(GET_BITVAL(Character,4)==1)
+	{
+		SET_BIT(D4_PORT,D4_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D4_PORT,D4_BinNum);
+	}
+	if(GET_BITVAL(Character,3)==1)
+	{
+		SET_BIT(D3_PORT,D3_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D3_PORT,D3_BinNum);
+	}
+	if(GET_BITVAL(Character,2)==1)
+	{
+		SET_BIT(D2_PORT,D2_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D2_PORT,D2_BinNum);
+	}
+	if(GET_BITVAL(Character,1)==1)
+	{
+		SET_BIT(D1_PORT,D1_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D1_PORT,D1_BinNum);
+	}
+	if(GET_BITVAL(Character,0)==1)
+	{
+		SET_BIT(D0_PORT,D0_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D0_PORT,D0_BinNum);
+	}
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+void LCD_DisplayString(u8 String[])
+{
+	u16 i = 0;
+	while(String[i]!= '\0')
+	{
+		u8 Character = String[i];
+		LCD_DisplayChar(Character);
+		i++;
+	}
+}
+void LCD_ON(void)
+{
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(D3_PORT,D3_BinNum);
+	SET_BIT(D2_PORT,D2_BinNum);
+	SET_BIT(D1_PORT,D1_BinNum);
+	SET_BIT(D0_PORT,D0_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+void LCD_OFF(void)
+{
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(D3_PORT,D3_BinNum);
+	RESET_BIT(D2_PORT,D2_BinNum);
+	RESET_BIT(D1_PORT,D1_BinNum);
+	RESET_BIT(D0_PORT,D0_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+void LCD_CursorON(void)
+{
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(D3_PORT,D3_BinNum);
+	SET_BIT(D2_PORT,D2_BinNum);
+	SET_BIT(D1_PORT,D1_BinNum);
+	SET_BIT(D0_PORT,D0_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+void LCD_CursorOFF(void)
+{
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(D3_PORT,D3_BinNum);
+	SET_BIT(D2_PORT,D2_BinNum);
+	RESET_BIT(D1_PORT,D1_BinNum);
+	RESET_BIT(D0_PORT,D0_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+/*For line 1: 0x80 + Column
+For line 2: 0xc0 + Column
+Where column ranges from 0 (0x00) to 15 (0x0f)*/
+void LCD_SetCursorPosition(u16 row,u16 col)
+{
+	u16 address=0;
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	if(row==0)
+	{
+		address=0x80 + col;
+		SET_BIT(D7_PORT,D7_BinNum);
+		if(GET_BITVAL(address,6)==1)
+		{
+			SET_BIT(D6_PORT,D6_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D6_PORT,D6_BinNum);
+		}
+		if(GET_BITVAL(address,5)==1)
+		{
+			SET_BIT(D5_PORT,D5_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D5_PORT,D5_BinNum);
+		}
+		if(GET_BITVAL(address,4)==1)
+		{
+			SET_BIT(D4_PORT,D4_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D4_PORT,D4_BinNum);
+		}
+		if(GET_BITVAL(address,3)==1)
+		{
+			SET_BIT(D3_PORT,D3_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D3_PORT,D3_BinNum);
+		}
+		if(GET_BITVAL(address,2)==1)
+		{
+			SET_BIT(D2_PORT,D2_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D2_PORT,D2_BinNum);
+		}
+		if(GET_BITVAL(address,1)==1)
+		{
+			SET_BIT(D1_PORT,D1_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D1_PORT,D1_BinNum);
+		}
+		if(GET_BITVAL(address,0)==1)
+		{
+			SET_BIT(D0_PORT,D0_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D0_PORT,D0_BinNum);
+		}
+	}
+	else if(row==1)
+	{
+		address=0xC0 + col;
+		SET_BIT(D7_PORT,D7_BinNum);
+		if(GET_BITVAL(address,6)==1)
+		{
+			SET_BIT(D6_PORT,D6_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D6_PORT,D6_BinNum);
+		}
+		if(GET_BITVAL(address,5)==1)
+		{
+			SET_BIT(D5_PORT,D5_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D5_PORT,D5_BinNum);
+		}
+		if(GET_BITVAL(address,4)==1)
+		{
+			SET_BIT(D4_PORT,D4_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D4_PORT,D4_BinNum);
+		}
+		if(GET_BITVAL(address,3)==1)
+		{
+			SET_BIT(D3_PORT,D3_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D3_PORT,D3_BinNum);
+		}
+		if(GET_BITVAL(address,2)==1)
+		{
+			SET_BIT(D2_PORT,D2_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D2_PORT,D2_BinNum);
+		}
+		if(GET_BITVAL(address,1)==1)
+		{
+			SET_BIT(D1_PORT,D1_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D1_PORT,D1_BinNum);
+		}
+		if(GET_BITVAL(address,0)==1)
+		{
+			SET_BIT(D0_PORT,D0_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D0_PORT,D0_BinNum);
+		}
+	}
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+void LCD_Clear(void)
+{
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	RESET_BIT(D3_PORT,D3_BinNum);
+	RESET_BIT(D2_PORT,D2_BinNum);
+	RESET_BIT(D1_PORT,D1_BinNum);
+	SET_BIT(D0_PORT,D0_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+#elif LCD_Mode == FourBitsMode
+void LCD_Init(void)
+{
+	_delay_ms(100);
+	//function set
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	SET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	SET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	SET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	//display on/off control
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	SET_BIT(D7_PORT,D7_BinNum);
+	SET_BIT(D6_PORT,D6_BinNum);
+	SET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	//display clear
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	SET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	//entry mode set
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	SET_BIT(D6_PORT,D6_BinNum);
+	SET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+void LCD_DisplayChar(u8 Character)
+{
+	SET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	if(GET_BITVAL(Character,7)==1)
+	{
+		SET_BIT(D7_PORT,D7_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D7_PORT,D7_BinNum);
+	}
+	if(GET_BITVAL(Character,6)==1)
+	{
+		SET_BIT(D6_PORT,D6_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D6_PORT,D6_BinNum);
+	}
+	if(GET_BITVAL(Character,5)==1)
+	{
+		SET_BIT(D5_PORT,D5_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D5_PORT,D5_BinNum);
+	}
+	if(GET_BITVAL(Character,4)==1)
+	{
+		SET_BIT(D4_PORT,D4_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D4_PORT,D4_BinNum);
+	}
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(5);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(5);
+	SET_BIT(RS_PORT,RS_BinNum);
+	if(GET_BITVAL(Character,3)==1)
+	{
+		SET_BIT(D7_PORT,D7_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D7_PORT,D7_BinNum);
+	}
+	if(GET_BITVAL(Character,2)==1)
+	{
+		SET_BIT(D6_PORT,D6_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D6_PORT,D6_BinNum);
+	}
+	if(GET_BITVAL(Character,1)==1)
+	{
+		SET_BIT(D5_PORT,D5_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D5_PORT,D5_BinNum);
+	}
+	if(GET_BITVAL(Character,0)==1)
+	{
+		SET_BIT(D4_PORT,D4_BinNum);
+	}
+	else
+	{
+		RESET_BIT(D4_PORT,D4_BinNum);
+	}
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(5);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(5);
+}
+void LCD_DisplayString(u8 String[])
+{
+	u16 i = 0;
+	while(String[i]!= '\0')
+	{
+		u8 Character = String[i];
+		LCD_DisplayChar(Character);
+		i++;
+	}
+}
+void LCD_ON(void)
+{
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	SET_BIT(D7_PORT,D7_BinNum);
+	SET_BIT(D6_PORT,D6_BinNum);
+	SET_BIT(D5_PORT,D5_BinNum);
+	SET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+void LCD_OFF(void)
+{
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	SET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+void LCD_CursorON(void)
+{
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	SET_BIT(D7_PORT,D7_BinNum);
+	SET_BIT(D6_PORT,D6_BinNum);
+	SET_BIT(D5_PORT,D5_BinNum);
+	SET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+void LCD_CursorOFF(void)
+{
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	SET_BIT(D7_PORT,D7_BinNum);
+	SET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+
+void LCD_SetCursorPosition(u16 row,u16 col)
+{
+	u16 address=0;
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	if(row==0)
+	{
+		address=0x80 + col;
+		SET_BIT(D7_PORT,D7_BinNum);
+		if(GET_BITVAL(address,6)==1)
+		{
+			SET_BIT(D6_PORT,D6_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D6_PORT,D6_BinNum);
+		}
+		if(GET_BITVAL(address,5)==1)
+		{
+			SET_BIT(D5_PORT,D5_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D5_PORT,D5_BinNum);
+		}
+		if(GET_BITVAL(address,4)==1)
+		{
+			SET_BIT(D4_PORT,D4_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D4_PORT,D4_BinNum);
+		}
+		SET_BIT(E_PORT,E_BinNum);
+		_delay_ms(2);
+		RESET_BIT(E_PORT,E_BinNum);
+		_delay_ms(2);
+		if(GET_BITVAL(address,3)==1)
+		{
+			SET_BIT(D7_PORT,D7_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D7_PORT,D7_BinNum);
+		}
+		if(GET_BITVAL(address,2)==1)
+		{
+			SET_BIT(D6_PORT,D6_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D6_PORT,D6_BinNum);
+		}
+		if(GET_BITVAL(address,1)==1)
+		{
+			SET_BIT(D5_PORT,D5_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D5_PORT,D5_BinNum);
+		}
+		if(GET_BITVAL(address,0)==1)
+		{
+			SET_BIT(D4_PORT,D4_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D4_PORT,D4_BinNum);
+		}
+		SET_BIT(E_PORT,E_BinNum);
+		_delay_ms(2);
+		RESET_BIT(E_PORT,E_BinNum);
+		_delay_ms(2);
+	}
+	else if(row==1)
+	{
+		address=0xC0 + col;
+		SET_BIT(D7_PORT,D7_BinNum);
+		if(GET_BITVAL(address,6)==1)
+		{
+			SET_BIT(D6_PORT,D6_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D6_PORT,D6_BinNum);
+		}
+		if(GET_BITVAL(address,5)==1)
+		{
+			SET_BIT(D5_PORT,D5_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D5_PORT,D5_BinNum);
+		}
+		if(GET_BITVAL(address,4)==1)
+		{
+			SET_BIT(D4_PORT,D4_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D4_PORT,D4_BinNum);
+		}
+		SET_BIT(E_PORT,E_BinNum);
+		_delay_ms(2);
+		RESET_BIT(E_PORT,E_BinNum);
+		_delay_ms(2);
+		if(GET_BITVAL(address,3)==1)
+		{
+			SET_BIT(D7_PORT,D7_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D7_PORT,D7_BinNum);
+		}
+		if(GET_BITVAL(address,2)==1)
+		{
+			SET_BIT(D6_PORT,D6_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D6_PORT,D6_BinNum);
+		}
+		if(GET_BITVAL(address,1)==1)
+		{
+			SET_BIT(D5_PORT,D5_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D5_PORT,D5_BinNum);
+		}
+		if(GET_BITVAL(address,0)==1)
+		{
+			SET_BIT(D4_PORT,D4_BinNum);
+		}
+		else
+		{
+			RESET_BIT(D4_PORT,D4_BinNum);
+		}
+		SET_BIT(E_PORT,E_BinNum);
+		_delay_ms(2);
+		RESET_BIT(E_PORT,E_BinNum);
+		_delay_ms(2);
+	}
+}
+void LCD_Clear(void)
+{
+	RESET_BIT(RS_PORT,RS_BinNum);
+	RESET_BIT(RW_PORT,RW_BinNum);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	RESET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(D7_PORT,D7_BinNum);
+	RESET_BIT(D6_PORT,D6_BinNum);
+	RESET_BIT(D5_PORT,D5_BinNum);
+	SET_BIT(D4_PORT,D4_BinNum);
+	SET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+	RESET_BIT(E_PORT,E_BinNum);
+	_delay_ms(2);
+}
+#endif
